@@ -3,7 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{title}}</title>
+    {{#if title}}
+      <title>{{title}}</title>
+    {{#else}}
+      <title>Ecommerce Website</title>
+    {{/if}}
     <link rel='stylesheet' href='/stylesheets/style.css'>
   </head>
   <body>
