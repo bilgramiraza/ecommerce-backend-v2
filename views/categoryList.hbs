@@ -1,2 +1,10 @@
 <main>
+  <h2>Categories</h2>
+  <section>
+    <ul>
+      {{#each categories}}
+        <li><a href={{this.url}}>{{this.name}}</a></li>
+      {{/each}}
+    </ul>
+  </section>
 </main>
