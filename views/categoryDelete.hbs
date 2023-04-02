@@ -26,7 +26,8 @@
       </div>
       <h4>Cannot delete Category, Please Delete/Modify above Products before proceeding</h4>
     {{#else}}
-      <form action="/product/{{categoryId}}/delete" method="POST" novalidate>
+      <h4>Confirm the Deletion of the Category</h4>
+      <form action="/category/{{categoryId}}/delete" method="POST" novalidate>
         <input type="hidden" name="categoryId" value="{{categoryId}}" required="true">
         <button type="submit">Delete</button>
       </form>
