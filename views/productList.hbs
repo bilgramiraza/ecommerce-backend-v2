@@ -1,2 +1,10 @@
 <main>
+  <h2>Products</h2>
+  <section>
+    <ul>
+      {{#each products}}
+        <li><a href={{this.url}}>{{this.name}}</a></li>
+      {{/each}}
+    </ul>
+  </section>
 </main>
