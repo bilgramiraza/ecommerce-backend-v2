@@ -1,2 +1,35 @@
 <main>
+  <h2>Delete Category</h2>
+  <section>
+    <h3>Category Name: {{categoryName}}</h3>
+    <p>Category Description: {{categoryDesc}}</p>
+  </section>
+  <section>
+    {{#if products}}
+      <div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          {{#each products}}
+            <tbody>
+              <tr>
+                <td>{{this.name}}</td>
+                <td><a href="/product/{{this._id}}">Details</a></td>
+              </tr>
+            </tbody>
+          {{/each}}
+        </table>
+      </div>
+      <h4>Cannot delete Category, Please Delete/Modify above Products before proceeding</h4>
+    {{#else}}
+      <form action="/product/{{categoryId}}/delete" method="POST" novalidate>
+        <input type="hidden" name="categoryId" value="{{categoryId}}" required="true">
+        <button type="submit">Delete</button>
+      </form>
+    {{/if}}
+  </section>
 </main>
