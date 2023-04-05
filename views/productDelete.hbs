@@ -1,17 +1,12 @@
 <main>
   <h2>Delete Product</h2>
   <section>
-    <h3>Product Name: {{productName}}</h3>
-    <p>Product Description: {{productDesc}}</p>
-    <p>SKU: {{productSKU}}</p>
-    <p>product: {{productCategory}}</p>
-    <p>Quantity: {{productQuantity}}</p>
-    <p>Price: {{productPrice}}</p>
+    {{> productDetailSection product=product}}
   </section>
   <section>
     <h4>Confirm the Deletion of the Product</h4>
     <form action="" method="POST" novalidate>
-      <input type="hidden" name="productId" value="{{productId}}" required="true">
+      <input type="hidden" name="productId" value="{{product._id}}" required="true">
       <button type="submit">Delete</button>
     </form>
   </section>
