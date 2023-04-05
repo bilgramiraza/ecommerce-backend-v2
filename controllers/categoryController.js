@@ -1,8 +1,21 @@
+const Category = require('../models/category');
+const Product = require('../models/product');
 const { body, validationResult } = require('express-validator');
 
 //Only have to implement this function once per project
-exports.index = (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Site Home Page');
+exports.index = async (req, res, next) => {
+  try{
+    const [categoryCount, productCount] = await Promise.all([
+      Category.countDocuments({}).exec(),
+      Product.countDocuments({}).exec(),
+    ]);  
+    res.render('index',{
+      productCount,
+      categoryCount,
+    });
+  }catch(err){
+    return next(err);
+  }
 };
 
 exports.categoryList = (req, res, next) => {
