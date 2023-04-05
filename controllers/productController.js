@@ -19,8 +19,24 @@ exports.productList = async (req, res, next) => {
   }
 };
 
-exports.productDetail = (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: product Detail ${req.params.id}`);
+exports.productDetail = async (req, res, next) => {
+  try{
+    const product = await Product.findById(req.params.id).populate('category', 'name').lean().exec();
+    if(!product){
+      const err = new Error('Product Not Found');
+      err.status = 404;
+      return next(err);
+    }
+    const url = `/inventory/product/${product._id}`;
+    product.deleteUrl = `${url}/delete`;
+    product.updateUrl = `${url}/update`;
+    product.category.url = `/inventory/category/${product.category?._id}`;
+    res.render('productDetail',{
+      product,
+    });
+  }catch(err){
+    return next(err);
+  }
 };
 
 exports.productCreateGet = (req, res, next) => {

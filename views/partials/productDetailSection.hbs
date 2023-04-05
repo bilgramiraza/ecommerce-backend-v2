@@ -1,6 +1,8 @@
 <h3>Product Name: {{product.name}}</h3>
-<p>Product Description: {{product.desc}}</p>
-<p>SKU: {{product.sku}}</p>
-<p>product: {{product.category}}</p>
+<p>Product Description: {{product.description}}</p>
+<p>SKU: {{product.SKU}}</p>
+<p>Category: <a href="{{product.category.url}}">{{product.category.name}}</a></p>
 <p>Quantity: {{product.quantity}}</p>
 <p>Price: {{product.price}}</p>
+<a href="{{product.updateUrl}}">Update</a>
+<a href="{{product.deleteUrl}}">Delete</a>
