@@ -1,0 +1,25 @@
+<div>
+  <label for="{{id}}">{{label}}</label>
+  <select 
+    id="{{id}}"
+    name="{{id}}"
+    class=""
+  >
+  <option
+    value=""
+    disabled="disabled"
+    selected="selected">
+    Select A Category
+  </option>
+  {{#each values}}
+    <option 
+      value="{{this._id}}"
+      selected="{{#selected ../chosen this._id}}"
+      >
+    {{this.name}}
+    </option>
+  {{/each}}
+  {{#if error}}
+    <span>{{error}}</span>
+  {{/if}}
+</div>
