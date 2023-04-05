@@ -18,8 +18,21 @@ exports.index = async (req, res, next) => {
   }
 };
 
-exports.categoryList = (req, res, next) => {
-  res.send('NOT IMPLEMENTED: category List');
+exports.categoryList = async (req, res, next) => {
+  try{
+    const categoryNameList = await Category.find({}).select('name').lean().sort({name:1}).exec();
+    const categories = categoryNameList.map((category)=>{
+      return {
+        name:category.name,
+        url:`/inventory/category/${category._id}`,
+      }
+    });
+    res.render('categoryList',{
+      categories,
+    });
+  }catch(err){
+    return next(err);
+  }
 };
 
 exports.categoryDetail = (req, res, next) => {
