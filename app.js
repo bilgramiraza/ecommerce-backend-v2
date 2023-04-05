@@ -26,17 +26,15 @@ app.set('view engine', 'hbs');
 
 app.engine('hbs', exphbs.engine({ 
   extname: 'hbs',
-  layoutsDir: __dirname + '/views/layouts/',
-  partialsDir: __dirname + '/views/partials/',
-  /*helpers: {
-    <HelperFunctionName>: function (value1, value2, options) {
-      if (<Test>) {
-        return options.fn(this); //Return True
-      } else {
-        return options.inverse(this); //Return False
-      }
+  layoutsdir: __dirname + '/views/layouts/',
+  partialsdir: __dirname + '/views/partials/',
+  helpers: {
+    selected: function (chosen, value, options) {
+      if (chosen && chosen === value) return "selected"; 
+
+      else  return ""; 
     },
-  },*/
+  },
 }));
 
 app.use(logger('dev'));
