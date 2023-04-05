@@ -1,13 +1,15 @@
 <main>
   <h2>Category Details</h2>
   <section>
-    <h3>Category Name: {{categoryName}}</h3>
-    <p>Category Description: {{categoryDesc}}</p>
+    <h3>Category Name: {{category.name}}</h3>
+    <p>Category Description: {{category.description}}</p>
+    <a href="{{category.updateUrl}}">Update</a>
+    <a href="{{category.deleteUrl}}">Delete</a>
   </section>
   <section>
     {{#if products}}
       {{> productListTable products=products}}
-    {{#else}}
+    {{else}}
       <h4>No Products under this category</h4>
     {{/if}}
   </section>

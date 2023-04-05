@@ -1,3 +1,4 @@
+const category = require('../models/category');
 const Category = require('../models/category');
 const Product = require('../models/product');
 const { body, validationResult } = require('express-validator');
@@ -35,8 +36,41 @@ exports.categoryList = async (req, res, next) => {
   }
 };
 
-exports.categoryDetail = (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: category Detail ${req.params.id}`);
+exports.categoryDetail = async (req, res, next) => {
+  try{
+    const [category, categoryProducts] = await Promise.all([
+      Category.findById(req.params.id).select('name description').lean().exec(),
+      Product.find({category:req.params.id}).select('name').lean().sort({name:1}).exec(),
+    ]);
+
+    if (!category) {
+      const err = new Error('Category not Found');
+      err.status = 404;
+      return next(err);
+    }
+    
+    const url = `/inventory/category/${category._id}`;
+    category.deleteUrl = `${url}/delete`;
+    category.updateUrl = `${url}/update`;
+
+    const products =  categoryProducts.map((product)=>{
+      const url = `/inventory/product/${product._id}`;
+      return {
+        name:product.name,
+        url,
+        deleteUrl:`${url}/delete`,
+        updateUrl:`${url}/update`,
+       };
+    });
+
+    res.render('categoryDetail',{
+      category,
+      products,
+    });
+
+  }catch(err){
+    return next(err);
+  }
 };
 
 exports.categoryCreateGet = (req, res, next) => {
