@@ -8,7 +8,7 @@
     {{#if products}}
       {{> productListTable products=products}}
       <h4>Cannot delete Category, Please Delete/Modify above Products before proceeding</h4>
-    {{#else}}
+    {{else}}
       <h4>Confirm the Deletion of the Category</h4>
       <form action="" method="POST" novalidate>
         <input type="hidden" name="categoryId" value="{{categoryId}}" required="true">
