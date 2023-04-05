@@ -5,6 +5,9 @@
       {{> inputField id="name" label="Name" type="text" value=name error=error.name}}
       {{> descField id="description" label="Description" value=description error=error.description}}
       {{> inputField id="sku" label="SKU" type="text" value=sku error=error.sku}}
+      {{> inputField id="quantity" label="Quantity" type="text" value=quantity error=error.quantity}}
+      {{> inputField id="price" label="Price" type="text" value=price error=error.price}}
+      {{> selectField id="category" label="Category" values=categories chosen=category error=error.category}}
       <button type="submit">Submit</button>
     </form>
   </section>
