@@ -4,10 +4,10 @@ const router = express.Router();
 const productController = require('../controllers/productController');
 const categoryController = require('../controllers/categoryController');
 
-//PRODUCT ROUTES //
 //Website HomePage
-router.get('/', productController.index);
+router.get('/', categoryController.index);
 
+//PRODUCT ROUTES //
 //product Creation Page
 router.get('/product/create', productController.productCreateGet);
 router.post('/product/create', productController.productCreatePost);
@@ -27,8 +27,6 @@ router.get('/product/:id', productController.productDetail);
 router.get('/products', productController.productList);
 
 //CATEGORY ROUTES //
-//Website HomePage
-router.get('/', categoryController.index);
 
 //Category Creation Page
 router.get('/category/create', categoryController.categoryCreateGet);
