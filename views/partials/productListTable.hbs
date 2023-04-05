@@ -1,0 +1,20 @@
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Details</th>
+      <th>Update</th>
+      <th>Delete</th>
+    </tr>
+  </thead>
+  {{#each products}}
+    <tbody>
+      <tr>
+        <td>{{this.name}}</td>
+        <td><a href="{{this.url}}">Details</a></td>
+        <td><a href="{{this.updateUrl}}">Details</a></td>
+        <td><a href="{{this.deleteUrl}}">Details</a></td>
+      </tr>
+    </tbody>
+  {{/each}}
+</table>

@@ -6,24 +6,7 @@
   </section>
   <section>
     {{#if products}}
-      <div>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Details</th>
-            </tr>
-          </thead>
-          {{#each products}}
-            <tbody>
-              <tr>
-                <td>{{this.name}}</td>
-                <td><a href={{this.url}}>Details</a></td>
-              </tr>
-            </tbody>
-          {{/each}}
-        </table>
-      </div>
+      {{> productListTable products=products}}
       <h4>Cannot delete Category, Please Delete/Modify above Products before proceeding</h4>
     {{#else}}
       <h4>Confirm the Deletion of the Category</h4>
