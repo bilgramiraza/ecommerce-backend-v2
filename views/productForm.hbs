@@ -1,2 +1,11 @@
 <main>
+  <h2>Product {{type}} Form</h2>
+  <section>
+    <form action="" method="POST" novalidate>
+      {{> inputField id="name" label="Name" type="text" value=name error=error.name}}
+      {{> descField id="description" label="Description" value=description error=error.description}}
+      {{> inputField id="sku" label="SKU" type="text" value=sku error=error.sku}}
+      <button type="submit">Submit</button>
+    </form>
+  </section>
 </main>
