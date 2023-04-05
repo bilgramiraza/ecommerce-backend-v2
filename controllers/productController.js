@@ -39,8 +39,21 @@ exports.productDetail = async (req, res, next) => {
   }
 };
 
-exports.productCreateGet = (req, res, next) => {
-  res.send('NOT IMPLEMENTED: product Create GET');
+exports.productCreateGet = async (req, res, next) => {
+  try{
+    const categories = await Category.find({}).select('name').lean().sort({name:1}).exec();
+    if(!categories){
+      const err = new Error('Categories Not Found');
+      err.status = 404;
+      return next(err);
+    }
+    res.render('productForm', {
+      type:'Creation',
+      categories,
+    });
+  }catch(err){
+    return next(err);
+  }
 };
 
 exports.productCreatePost = (req, res, next) => {

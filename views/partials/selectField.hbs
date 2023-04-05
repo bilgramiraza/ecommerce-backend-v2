@@ -5,20 +5,21 @@
     name="{{id}}"
     class=""
   >
-  <option
-    value=""
-    disabled="disabled"
-    selected="selected">
-    Select A Category
-  </option>
-  {{#each values}}
-    <option 
-      value="{{this._id}}"
-      selected="{{#selected ../chosen this._id}}"
-      >
-    {{this.name}}
+    <option
+      value=""
+      disabled="disabled"
+      selected>
+      Select A Category
     </option>
-  {{/each}}
+    {{#each values}}
+      <option 
+        value="{{this._id}}"
+        {{selected ../chosen this._id}}
+        >
+        {{this.name}}
+      </option>
+    {{/each}}
+  </select>
   {{#if error}}
     <span>{{error}}</span>
   {{/if}}

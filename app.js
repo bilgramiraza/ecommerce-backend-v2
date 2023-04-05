@@ -30,7 +30,7 @@ app.engine('hbs', exphbs.engine({
   partialsdir: __dirname + '/views/partials/',
   helpers: {
     selected: function (chosen, value, options) {
-      if (chosen && chosen === value) {
+      if (chosen && chosen === value.toString()) {
         return "selected"; 
       }else{
         return ""; 
