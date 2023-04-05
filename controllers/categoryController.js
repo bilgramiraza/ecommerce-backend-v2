@@ -74,7 +74,7 @@ exports.categoryDetail = async (req, res, next) => {
 };
 
 exports.categoryCreateGet = (req, res, next) => {
-  res.send('NOT IMPLEMENTED: category Create GET');
+  res.render('categoryForm', {type:'Creation'});
 };
 
 exports.categoryCreatePost = (req, res, next) => {
