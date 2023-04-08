@@ -1,4 +1,3 @@
-const category = require('../models/category');
 const Category = require('../models/category');
 const Product = require('../models/product');
 const { body, validationResult } = require('express-validator');
@@ -109,8 +108,35 @@ exports.categoryCreatePost = [
   }
 ];
 
-exports.categoryDeleteGet = (req, res, next) => {
-  res.send('NOT IMPLEMENTED: category Delete GET');
+exports.categoryDeleteGet = async (req, res, next) => {
+  try{
+    const [category, categoryProducts] = await Promise.all([
+      Category.findById(req.params.id).select('name description').lean().exec(),
+      Product.find({category:req.params.id}).select('name').lean().sort({name:1}).exec(),
+    ]);
+    if(!category) return res.redirect('/inventory/categories');
+
+    const categoryUrl = `/inventory/category/${category._id}`;
+    category.deleteUrl = `${categoryUrl}/delete`;
+    category.updateUrl = `${categoryUrl}/update`;
+
+    const products =  categoryProducts.map((product)=>{
+      const url = `/inventory/product/${product._id}`;
+      return {
+        name:product.name,
+        url,
+        deleteUrl:`${url}/delete`,
+        updateUrl:`${url}/update`,
+       };
+    });
+
+    return res.render('categoryDelete',{
+      category,
+      products,
+    });
+  }catch(err){
+    return next(err);
+  }
 };
 
 exports.categoryDeletePost = (req, res, next) => {
