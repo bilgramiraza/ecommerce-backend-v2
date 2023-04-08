@@ -77,9 +77,37 @@ exports.categoryCreateGet = (req, res, next) => {
   res.render('categoryForm', {type:'Creation'});
 };
 
-exports.categoryCreatePost = (req, res, next) => {
-  res.send('NOT IMPLEMENTED: category Create POST');
-};
+exports.categoryCreatePost = [
+  body('name','Category name Required').trim().isLength({min:1}).escape(),
+  body('description','Category description Required').trim().isLength({min:1}).escape(),
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+      const errorArray = errors.array();
+      const errorObject = Object.fromEntries(errorArray.map((error)=>[error.param,error.msg]));
+
+      return res.render('categoryForm',{
+        name: req.body.name,
+        description: req.body.description,
+        errors: errorObject,
+      });
+    }
+
+    const category = new Category({
+      name: req.body.name,
+      description: req.body.description,
+    });
+    try{
+      const foundCategory = await Category.findOne({name: req.body.name}).exec();
+      if(foundCategory)  return res.redirect(`/inventory/category/${foundCategory._id}`);
+
+      await category.save();
+      return res.redirect(`/inventory/category/${category._id}`);
+    }catch(err){
+      return next(err);
+    }
+  }
+];
 
 exports.categoryDeleteGet = (req, res, next) => {
   res.send('NOT IMPLEMENTED: category Delete GET');
