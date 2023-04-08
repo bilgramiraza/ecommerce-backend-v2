@@ -30,7 +30,7 @@ exports.productDetail = async (req, res, next) => {
     const url = `/inventory/product/${product._id}`;
     product.deleteUrl = `${url}/delete`;
     product.updateUrl = `${url}/update`;
-    product.category.url = `/inventory/category/${product.category?._id}`;
+    product.category.url = `/inventory/category/${product.category._id}`;
     res.render('productDetail',{
       product,
     });
@@ -42,12 +42,12 @@ exports.productDetail = async (req, res, next) => {
 exports.productCreateGet = async (req, res, next) => {
   try{
     const categories = await Category.find({}).select('name').lean().sort({name:1}).exec();
-    if(!categories){
+    if(!categories?.length){
       const err = new Error('Categories Not Found');
       err.status = 404;
       return next(err);
     }
-    res.render('productForm', {
+    return res.render('productForm', {
       type:'Creation',
       categories,
     });
@@ -56,9 +56,53 @@ exports.productCreateGet = async (req, res, next) => {
   }
 };
 
-exports.productCreatePost = (req, res, next) => {
-  res.send('NOT IMPLEMENTED: product Create POST');
-};
+exports.productCreatePost = [
+  body('name','Product Name Cannot be Empty').trim().isLength({min:1}).escape(),
+  body('description','Product Description Cannot be Empty').trim().isLength({min:1}).escape(),
+  body('sku','Product SKU Cannot be Empty').trim().isLength({min:1}).escape(),
+  body('category','Product Category Must be Selected').trim().isLength({min:1}).escape(),
+  body('quantity','Product Quantity cannot be Empty').isInt({min:0}).withMessage('Product Quantity must be Positive'),
+  body('price','Product Price cannot be Empty').isFloat({min:0}).withMessage('Product Price must be Positive'),
+  async (req, res, next) => {
+    try{
+      const errors = validationResult(req);
+      if(!errors.isEmpty()){
+        const errorArray = errors.array();
+        const errorObject = Object.fromEntries(errorArray.map(error=>[error.param,error.msg]));
+        
+        const categories = await Category.find({}).select('name').lean().sort({name:1}).exec();
+        if(!categories?.length){
+          const err = new Error('No Categories found');
+          err.status = 404;
+          return next(err);
+        }
+        return res.render('productForm',{
+          type:'Creation',
+          ...req.body,
+          error:errorObject,
+        });
+      }
+
+      const foundProduct = await Product.findOne({name:req.body.name}).select('_id').lean().exec();
+      if(foundProduct)  return res.redirect(`/inventory/product/${foundProduct._id}`);
+
+      const {name, description, sku:SKU, category, quantity, price} = req.body;
+      const product = new Product({
+        name,
+        description, 
+        SKU,
+        category, 
+        quantity, 
+        price,
+      }); 
+
+      await product.save();
+      return res.redirect(`/inventory/product/${product._id}`);
+    }catch(err){
+      return next(err);
+    }
+  },
+];
 
 exports.productDeleteGet = (req, res, next) => {
   res.send('NOT IMPLEMENTED: product Delete GET');
