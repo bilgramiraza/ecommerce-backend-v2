@@ -2,8 +2,8 @@
   <h2>Category {{type}} Form</h2>
   <section>
     <form action="" method="POST" novalidate>
-      {{> inputField id="name" label="Name" type="text" value=name error=error.name}}
-      {{> textAreaField id="description" label="Description" value=description error=error.description}}
+      {{> inputField id="name" label="Name" type="text" value=name error=errors.name}}
+      {{> textAreaField id="description" label="Description" value=description error=errors.description}}
       <button type="submit">Submit</button>
     </form>
   </section>

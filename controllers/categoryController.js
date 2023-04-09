@@ -1,6 +1,5 @@
 const Category = require('../models/category');
 const Product = require('../models/product');
-const { body, validationResult } = require('express-validator');
 
 //Only have to implement this function once per project
 exports.index = async (req, res, next) => {
@@ -47,10 +46,7 @@ exports.categoryList = async (req, res, next) => {
 
 exports.categoryDetail = async (req, res, next) => {
   try{
-    const [category, categoryProducts] = await Promise.all([
-      Category.findById(req.params.id).select('name description').lean().exec(),
-      Product.find({category:req.params.id}).select('name').lean().sort({name:1}).exec(),
-    ]);
+    const category = await Category.findById(req.params.id).select('name description').lean().exec();
 
     if (!category) {
       const err = new Error('Category not Found');
@@ -62,19 +58,10 @@ exports.categoryDetail = async (req, res, next) => {
     category.deleteUrl = `${url}/delete`;
     category.updateUrl = `${url}/update`;
 
-    const products =  categoryProducts.map((product)=>{
-      const url = `/inventory/product/${product._id}`;
-      return {
-        name:product.name,
-        url,
-        deleteUrl:`${url}/delete`,
-        updateUrl:`${url}/update`,
-       };
-    });
-
+    let data = req.productList;
     res.render('categoryDetail',{
       category,
-      products,
+      products:req.productList,
     });
 
   }catch(err){
@@ -86,62 +73,39 @@ exports.categoryCreateGet = (req, res, next) => {
   res.render('categoryForm', {type:'Creation'});
 };
 
-exports.categoryCreatePost = [
-  body('name','Category name Required').trim().isLength({min:1}).escape(),
-  body('description','Category description Required').trim().isLength({min:1}).escape(),
-  async (req, res, next) => {
-    //Creates an ErrorHandling Object in the format of 
-    //{[param]:[msg],...}
-    //Where 'param' is the input name which failed validation and 'msg' is the Error Message generated for it
-    const errorObject = validationResult(req).formatWith(({ msg }) => msg).mapped();
-    const {name, description} = req.body;
-
-    if(Object.keys(errorObject).length){ 
-
-      return res.render('categoryForm',{
-        name,
-        description,
-        errors: errorObject,
-      });
-    }
-
-    const category = new Category({
+exports.categoryCreatePost = async (req, res, next) => {
+  const {name, description} = req.body;
+  if(req.errorObject){ 
+    return res.render('categoryForm',{
       name,
       description,
+      errors: req.errorObject,
     });
-    try{
-      const foundCategory = await Category.findOne({name}).exec();
-      if(foundCategory)  return res.redirect(`/inventory/category/${foundCategory._id}`);
-
-      await category.save();
-      return res.redirect(`/inventory/category/${category._id}`);
-    }catch(err){
-      return next(err);
-    }
   }
-];
+
+  const category = new Category({
+    name,
+    description,
+  });
+  try{
+    const foundCategory = await Category.findOne({name}).exec();
+    if(foundCategory)  return res.redirect(`/inventory/category/${foundCategory._id}`);
+
+    await category.save();
+    return res.redirect(`/inventory/category/${category._id}`);
+  }catch(err){
+    return next(err);
+  }
+};
 
 exports.categoryDeleteGet = async (req, res, next) => {
   try{
-    const [category, categoryProducts] = await Promise.all([
-      Category.findById(req.params.id).select('name description').lean().exec(),
-      Product.find({category:req.params.id}).select('name').lean().sort({name:1}).exec(),
-    ]);
+    const category = await Category.findById(req.params.id).select('name description').lean().exec();
     if(!category) return res.redirect('/inventory/categories');
-
-    const products =  categoryProducts.map((product)=>{
-      const url = `/inventory/product/${product._id}`;
-      return {
-        name:product.name,
-        url,
-        deleteUrl:`${url}/delete`,
-        updateUrl:`${url}/update`,
-       };
-    });
 
     return res.render('categoryDelete',{
       category,
-      products,
+      products:req.productList,
     });
   }catch(err){
     return next(err);
@@ -150,27 +114,14 @@ exports.categoryDeleteGet = async (req, res, next) => {
 
 exports.categoryDeletePost = async (req, res, next) => {
   try{
-    const [category, categoryProducts] = await Promise.all([
-      Category.findById(req.body.categoryId).lean().exec(),
-      Product.find({category:req.body.categoryId}).select('name').lean().exec(),
-    ]);
+    const category = await Category.findById(req.body.categoryId).lean().exec();
 
     if(!category) return res.redirect('/inventory/categories');
 
-    if(categoryProducts?.length){
-      const products =  categoryProducts.map((product)=>{
-        const url = `/inventory/product/${product._id}`;
-        return {
-          name:product.name,
-          url,
-          deleteUrl:`${url}/delete`,
-          updateUrl:`${url}/update`,
-         };
-      });
-  
+    if(req.productList?.length){
       return res.render('categoryDelete',{
         category,
-        products,
+        products:req.productList,
       });
     }
     await Category.findByIdAndDelete(req.body.categoryId);
@@ -200,32 +151,22 @@ exports.categoryUpdateGet = async (req, res, next) => {
   }
 };
 
-exports.categoryUpdatePost =[
-  body('name','Category name Required').trim().isLength({min:1}).escape(),
-  body('description','Category description Required').trim().isLength({min:1}).escape(),
-  async (req, res, next) => {
-    //Creates an ErrorHandling Object in the format of 
-    //{[param]:[msg],...}
-    //Where 'param' is the input name which failed validation and 'msg' is the Error Message generated for it
-    const errorObject = validationResult(req).formatWith(({ msg }) => msg).mapped();
-    const {name, description} = req.body;
-
-    if(Object.keys(errorObject).length){ 
-
-      return res.render('categoryForm',{
-        type:'Revision',
-        name,
-        description,
-        errors: errorObject,
-      });
-    }
-
-    try{
-      await Category.findByIdAndUpdate(req.params.id, {name, description},{new:true, lean:true});
-
-      return res.redirect(`/inventory/category/${req.params.id}`);
-    }catch(err){
-      return next(err);
-    }
+exports.categoryUpdatePost = async (req, res, next) => {
+  const {name, description} = req.body;
+  if(req.errorObject){ 
+    return res.render('categoryForm',{
+      type:'Revision',
+      name,
+      description,
+      errors: req.errorObject,
+    });
   }
-];
+
+  try{
+    await Category.findByIdAndUpdate(req.params.id, {name, description},{new:true, lean:true});
+
+    return res.redirect(`/inventory/category/${req.params.id}`);
+  }catch(err){
+    return next(err);
+  }
+};
