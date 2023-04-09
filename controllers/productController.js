@@ -61,8 +61,8 @@ exports.productCreatePost = [
   body('description','Product Description Cannot be Empty').trim().isLength({min:1}).escape(),
   body('sku','Product SKU Cannot be Empty').trim().isLength({min:1}).escape(),
   body('category','Product Category Must be Selected').trim().isLength({min:1}).escape(),
-  body('quantity','Product Quantity cannot be Empty').isInt({min:0}).withMessage('Product Quantity must be Positive'),
-  body('price','Product Price cannot be Empty').isFloat({min:0}).withMessage('Product Price must be Positive'),
+  body('quantity','Product Quantity cannot be Empty').isInt({gt:0}).withMessage('Product Quantity must be Positive'),
+  body('price','Product Price cannot be Empty').isFloat({gt:0}).withMessage('Product Price must be Positive'),
   async (req, res, next) => {
     try{
       const errors = validationResult(req);
@@ -160,6 +160,43 @@ exports.productUpdateGet = async (req, res, next) => {
   }
 };
 
-exports.productUpdatePost = (req, res, next) => {
-  res.send('NOT IMPLEMENTED: product Update POST');
-};
+exports.productUpdatePost = [
+  body('name','Product Name Cannot be Empty').trim().isLength({min:1}).escape(),
+  body('description','Product Description Cannot be Empty').trim().isLength({min:1}).escape(),
+  body('sku','Product SKU Cannot be Empty').trim().isLength({min:1}).escape(),
+  body('category','Product Category Must be Selected').trim().isLength({min:1}).escape(),
+  body('quantity','Product Quantity cannot be Empty').isInt({gt:0}).withMessage('Product Quantity must be Positive'),
+  body('price','Product Price cannot be Empty').isFloat({gt:0}).withMessage('Product Price must be Positive'),
+  async (req, res, next) => {
+    try{
+      const errors = validationResult(req);
+      if(!errors.isEmpty()){
+        const errorArray = errors.array();
+        const errorObject = Object.fromEntries(errorArray.map(error=>[error.param,error.msg]));
+        
+        const categories = await Category.find({}).select('name').lean().sort({name:1}).exec();
+        if(!categories?.length){
+          const err = new Error('No Categories found');
+          err.status = 404;
+          return next(err);
+        }
+        return res.render('productForm',{
+          type:'Creation',
+          ...req.body,
+          categories,
+          error:errorObject,
+        });
+      }
+
+      const {name, description, sku:SKU, category, quantity, price} = req.body;
+      await Product.findByIdAndUpdate(
+        req.params.id,
+        {name, description, SKU, category, quantity, price},
+        {new:true, lean:true}
+      );
+      return res.redirect(`/inventory/product/${req.params.id}`);
+    }catch(err){
+      return next(err);
+    }
+  }
+];
