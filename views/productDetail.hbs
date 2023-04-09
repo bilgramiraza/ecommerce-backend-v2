@@ -2,5 +2,7 @@
   <h2>Product Details</h2>
   <section>
     {{> productDetailSection product=product}}
+    <a href="{{product.updateUrl}}">Update</a>
+    <a href="{{product.deleteUrl}}">Delete</a>
   </section>
 </main>
