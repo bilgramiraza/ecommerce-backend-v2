@@ -167,8 +167,22 @@ exports.categoryDeletePost = async (req, res, next) => {
   }
 };
 
-exports.categoryUpdateGet = (req, res, next) => {
-  res.send('NOT IMPLEMENTED: category Update GET');
+exports.categoryUpdateGet = async (req, res, next) => {
+  try{
+    const category = await Category.findById(req.params.id).lean().exec();
+    if(!category){
+      const err = new Error('Category Not Found');
+      err.status = 404;
+      return next(err);
+    }
+    return res.render('categoryForm',{
+      type:'Revision',
+      name:category.name,
+      description:category.description,
+    });
+  }catch(err){
+    return next(err);
+  }
 };
 
 exports.categoryUpdatePost = (req, res, next) => {
