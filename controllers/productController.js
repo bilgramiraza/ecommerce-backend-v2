@@ -128,8 +128,36 @@ exports.productDeletePost = async (req, res, next) => {
   }
 };
 
-exports.productUpdateGet = (req, res, next) => {
-  res.send('NOT IMPLEMENTED: product Update GET');
+exports.productUpdateGet = async (req, res, next) => {
+  try{
+    const [product, categories] = await Promise.all([
+      Product.findById(req.params.id).lean().exec(),
+      Category.find({}).select('name').lean().sort({name:1}).exec(),
+    ]);
+    if(!product){
+      const err = new Error('Product Not Found');
+      err.status = 404;
+      return next(err);
+    }else if(!categories?.length){
+      const err = new Error('Categories Not Found');
+      err.status = 404;
+      return next(err);
+    }
+
+    const {name, description, SKU:sku, category, quantity, price}=product;
+    return res.render('productForm',{
+      type:'Revision',
+      name,
+      description,
+      sku,
+      category:category.toString(),
+      quantity,
+      price,
+      categories,
+    });
+  }catch(err){
+    return next(err);
+  }
 };
 
 exports.productUpdatePost = (req, res, next) => {
