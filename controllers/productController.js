@@ -65,11 +65,11 @@ exports.productCreatePost = [
   body('price','Product Price cannot be Empty').isFloat({gt:0}).withMessage('Product Price must be Positive'),
   async (req, res, next) => {
     try{
-      const errors = validationResult(req);
-      if(!errors.isEmpty()){
-        const errorArray = errors.array();
-        const errorObject = Object.fromEntries(errorArray.map(error=>[error.param,error.msg]));
-        
+      //Creates an ErrorHandling Object in the format of 
+      //{[param]:[msg],...}
+      //Where 'param' is the input name which failed validation and 'msg' is the Error Message generated for it
+      const errorObject = validationResult(req).formatWith(({ msg }) => msg).mapped();
+      if(Object.keys(errorObject).length){ 
         const categories = await Category.find({}).select('name').lean().sort({name:1}).exec();
         if(!categories?.length){
           const err = new Error('No Categories found');
@@ -79,6 +79,7 @@ exports.productCreatePost = [
         return res.render('productForm',{
           type:'Creation',
           ...req.body,
+          categories,
           error:errorObject,
         });
       }
@@ -169,11 +170,11 @@ exports.productUpdatePost = [
   body('price','Product Price cannot be Empty').isFloat({gt:0}).withMessage('Product Price must be Positive'),
   async (req, res, next) => {
     try{
-      const errors = validationResult(req);
-      if(!errors.isEmpty()){
-        const errorArray = errors.array();
-        const errorObject = Object.fromEntries(errorArray.map(error=>[error.param,error.msg]));
-        
+      //Creates an ErrorHandling Object in the format of 
+      //{[param]:[msg],...}
+      //Where 'param' is the input name which failed validation and 'msg' is the Error Message generated for it
+      const errorObject = validationResult(req).formatWith(({ msg }) => msg).mapped();
+      if(Object.keys(errorObject).length){ 
         const categories = await Category.find({}).select('name').lean().sort({name:1}).exec();
         if(!categories?.length){
           const err = new Error('No Categories found');
@@ -181,7 +182,7 @@ exports.productUpdatePost = [
           return next(err);
         }
         return res.render('productForm',{
-          type:'Creation',
+          type:'Revision',
           ...req.body,
           categories,
           error:errorObject,

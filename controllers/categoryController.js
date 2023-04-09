@@ -80,24 +80,27 @@ exports.categoryCreatePost = [
   body('name','Category name Required').trim().isLength({min:1}).escape(),
   body('description','Category description Required').trim().isLength({min:1}).escape(),
   async (req, res, next) => {
-    const errors = validationResult(req);
-    if(!errors.isEmpty()){
-      const errorArray = errors.array();
-      const errorObject = Object.fromEntries(errorArray.map((error)=>[error.param,error.msg]));
+    //Creates an ErrorHandling Object in the format of 
+    //{[param]:[msg],...}
+    //Where 'param' is the input name which failed validation and 'msg' is the Error Message generated for it
+    const errorObject = validationResult(req).formatWith(({ msg }) => msg).mapped();
+    const {name, description} = req.body;
+
+    if(Object.keys(errorObject).length){ 
 
       return res.render('categoryForm',{
-        name: req.body.name,
-        description: req.body.description,
+        name,
+        description,
         errors: errorObject,
       });
     }
 
     const category = new Category({
-      name: req.body.name,
-      description: req.body.description,
+      name,
+      description,
     });
     try{
-      const foundCategory = await Category.findOne({name: req.body.name}).exec();
+      const foundCategory = await Category.findOne({name}).exec();
       if(foundCategory)  return res.redirect(`/inventory/category/${foundCategory._id}`);
 
       await category.save();
@@ -191,12 +194,13 @@ exports.categoryUpdatePost =[
   body('name','Category name Required').trim().isLength({min:1}).escape(),
   body('description','Category description Required').trim().isLength({min:1}).escape(),
   async (req, res, next) => {
-    const errors = validationResult(req);
+    //Creates an ErrorHandling Object in the format of 
+    //{[param]:[msg],...}
+    //Where 'param' is the input name which failed validation and 'msg' is the Error Message generated for it
+    const errorObject = validationResult(req).formatWith(({ msg }) => msg).mapped();
     const {name, description} = req.body;
 
-    if(!errors.isEmpty()){
-      const errorArray = errors.array();
-      const errorObject = Object.fromEntries(errorArray.map((error)=>[error.param,error.msg]));
+    if(Object.keys(errorObject).length){ 
 
       return res.render('categoryForm',{
         type:'Revision',
