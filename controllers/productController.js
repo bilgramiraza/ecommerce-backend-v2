@@ -104,8 +104,18 @@ exports.productCreatePost = [
   },
 ];
 
-exports.productDeleteGet = (req, res, next) => {
-  res.send('NOT IMPLEMENTED: product Delete GET');
+exports.productDeleteGet = async (req, res, next) => {
+  try{
+    const product = await Product.findById(req.params.id).populate('category','name').lean().exec();
+
+    if(!product) return res.redirect('/inventory/products');
+
+    product.category.url = `/inventory/product/${product.category._id}`;
+    return res.render('productDelete', {product});
+
+  }catch(err){
+    return next(err);
+  }
 };
 
 exports.productDeletePost = (req, res, next) => {
