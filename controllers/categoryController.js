@@ -199,6 +199,7 @@ exports.categoryUpdatePost =[
       const errorObject = Object.fromEntries(errorArray.map((error)=>[error.param,error.msg]));
 
       return res.render('categoryForm',{
+        type:'Revision',
         name,
         description,
         errors: errorObject,
