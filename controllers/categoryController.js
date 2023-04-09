@@ -116,10 +116,6 @@ exports.categoryDeleteGet = async (req, res, next) => {
     ]);
     if(!category) return res.redirect('/inventory/categories');
 
-    const categoryUrl = `/inventory/category/${category._id}`;
-    category.deleteUrl = `${categoryUrl}/delete`;
-    category.updateUrl = `${categoryUrl}/update`;
-
     const products =  categoryProducts.map((product)=>{
       const url = `/inventory/product/${product._id}`;
       return {
@@ -139,8 +135,36 @@ exports.categoryDeleteGet = async (req, res, next) => {
   }
 };
 
-exports.categoryDeletePost = (req, res, next) => {
-  res.send('NOT IMPLEMENTED: category Delete POST');
+exports.categoryDeletePost = async (req, res, next) => {
+  try{
+    const [category, categoryProducts] = await Promise.all([
+      Category.findById(req.body.categoryId).lean().exec(),
+      Product.find({category:req.body.categoryId}).select('name').lean().exec(),
+    ]);
+
+    if(!category) return res.redirect('/inventory/categories');
+
+    if(categoryProducts?.length){
+      const products =  categoryProducts.map((product)=>{
+        const url = `/inventory/product/${product._id}`;
+        return {
+          name:product.name,
+          url,
+          deleteUrl:`${url}/delete`,
+          updateUrl:`${url}/update`,
+         };
+      });
+  
+      return res.render('categoryDelete',{
+        category,
+        products,
+      });
+    }
+    await Category.findByIdAndDelete(req.body.categoryId);
+    return res.redirect('/inventory/categories');
+  }catch(err){
+    return next(err);
+  }
 };
 
 exports.categoryUpdateGet = (req, res, next) => {
