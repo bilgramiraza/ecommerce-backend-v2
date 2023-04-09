@@ -9,9 +9,19 @@ exports.index = async (req, res, next) => {
       Category.countDocuments({}).exec(),
       Product.countDocuments({}).exec(),
     ]);  
+    const category = {
+      count: categoryCount,
+      listUrl: '/inventory/categories',
+      addUrl: '/inventory/category/create',
+    };
+    const product = {
+      count: productCount,
+      listUrl: '/inventory/products',
+      addUrl: '/inventory/product/create',
+    };
     res.render('index',{
-      productCount,
-      categoryCount,
+      product,
+      category,
     });
   }catch(err){
     return next(err);

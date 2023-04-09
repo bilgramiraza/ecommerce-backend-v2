@@ -1,7 +1,11 @@
 <main>
   <h1>Ecommerce Website</h1>
   <section>
-    <p>Product Count: {{productCount}}</p>
-    <p>Category Count: {{categoryCount}}</p>
+    <p>Product Count: {{product.count}}</p>
+    <p><a href="{{product.listUrl}}">All Products</a></p>
+    <p><a href="{{product.addUrl}}">Add Product</a></p>
+    <p>Category Count: {{category.count}}</p>
+    <p><a href="{{category.listUrl}}">All Categories</a></p>
+    <p><a href="{{category.addUrl}}">Add Category</a></p>
   </section>
 </main>
