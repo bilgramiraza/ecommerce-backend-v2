@@ -170,11 +170,13 @@ exports.categoryDeletePost = async (req, res, next) => {
 exports.categoryUpdateGet = async (req, res, next) => {
   try{
     const category = await Category.findById(req.params.id).lean().exec();
+
     if(!category){
       const err = new Error('Category Not Found');
       err.status = 404;
       return next(err);
     }
+
     return res.render('categoryForm',{
       type:'Revision',
       name:category.name,
@@ -185,6 +187,30 @@ exports.categoryUpdateGet = async (req, res, next) => {
   }
 };
 
-exports.categoryUpdatePost = (req, res, next) => {
-  res.send('NOT IMPLEMENTED: category Update POST');
-};
+exports.categoryUpdatePost =[
+  body('name','Category name Required').trim().isLength({min:1}).escape(),
+  body('description','Category description Required').trim().isLength({min:1}).escape(),
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    const {name, description} = req.body;
+
+    if(!errors.isEmpty()){
+      const errorArray = errors.array();
+      const errorObject = Object.fromEntries(errorArray.map((error)=>[error.param,error.msg]));
+
+      return res.render('categoryForm',{
+        name,
+        description,
+        errors: errorObject,
+      });
+    }
+
+    try{
+      await Category.findByIdAndUpdate(req.params.id, {name, description},{new:true, lean:true});
+
+      return res.redirect(`/inventory/category/${req.params.id}`);
+    }catch(err){
+      return next(err);
+    }
+  }
+];
