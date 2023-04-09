@@ -118,8 +118,14 @@ exports.productDeleteGet = async (req, res, next) => {
   }
 };
 
-exports.productDeletePost = (req, res, next) => {
-  res.send('NOT IMPLEMENTED: product Delete POST');
+exports.productDeletePost = async (req, res, next) => {
+  try{
+    const product = await Product.findByIdAndDelete(req.body.productId).lean().exec();
+    
+    return res.redirect('/inventory/products');
+  }catch(err){
+    return next(err);
+  }
 };
 
 exports.productUpdateGet = (req, res, next) => {
