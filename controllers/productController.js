@@ -77,7 +77,7 @@ exports.productCreatePost = async (req, res, next) => {
       };
     });
 
-    const product = new product({
+    const product = new Product({
       name,
       description, 
       sku,

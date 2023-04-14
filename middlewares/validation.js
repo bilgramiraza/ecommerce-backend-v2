@@ -1,4 +1,5 @@
 const {body, check, validationResult} = require('express-validator');
+const { unlink } = require('node:fs/promises');
 const multerMiddleware = require('./multerMiddleware');
 const Product = require('../models/product');
 
