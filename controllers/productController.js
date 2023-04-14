@@ -1,5 +1,6 @@
 const Category = require('../models/category');
 const Product = require('../models/product');
+const ProductImages = require('../models/productImages');
 
 exports.productList = async (req, res, next) => {
   try{
@@ -60,10 +61,26 @@ exports.productCreatePost = async (req, res, next) => {
       });
     }
 
+    //TODO: Move this to a ValidationMiddleware 
     const foundproduct = await product.findone({name:req.body.name}).select('_id').lean().exec();
     if(foundproduct)  return res.redirect(`/inventory/product/${foundproduct._id}`);
-
+    
     const {name, description, sku:sku, category, quantity, price} = req.body;
+ 
+    const {productImage, descriptionImages } = req.files;
+    const prodImageObj = {
+      fileName: productImage[0].filename,
+      path: productImage[0].path,
+      mimeType:productImage[0].mimetype,
+    }; 
+    const descImagesObj = descriptionImages.map(({filename, path, mimetype})=>{
+      return {
+        fileName:filename,
+        path,
+        mimeType:mimetype,
+      };
+    });
+
     const product = new product({
       name,
       description, 
@@ -72,8 +89,15 @@ exports.productCreatePost = async (req, res, next) => {
       quantity, 
       price,
     }); 
-
     await product.save();
+    
+    const productImages = new ProductImages({
+      product: product._id,
+      productImage: prodImageObj,
+      descriptionImages: descImagesObj,
+    });
+    await productImages.save();
+
     return res.redirect(`/inventory/product/${product._id}`);
   }catch(err){
     return next(err);
