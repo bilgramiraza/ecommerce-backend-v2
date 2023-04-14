@@ -1,5 +1,6 @@
 const {body, check, validationResult} = require('express-validator');
 const multerMiddleware = require('./multerMiddleware');
+const Product = require('../models/product');
 
 function validationObject(req,res,next){
   //Creates an ErrorHandling Object in the format of 
@@ -51,8 +52,14 @@ async function multerCleanup(req,res,next) {
   }
 };
 
+const duplicateNameCheck = async (value)=>{
+  const foundProduct = await Product.exists({name:value});
+  if(foundProduct)  return Promise.reject(`Product with Name ${value} already Exists`);
+  return true;
+};
+
 exports.productValidation = [
-  body('name','Product Name Cannot be Empty').trim().isLength({min:1}).escape(),
+  body('name','Product Name Cannot be Empty').trim().isLength({min:1}).escape().custom(duplicateNameCheck),
   body('description','Product Description Cannot be Empty').trim().isLength({min:1}).escape(),
   body('sku','Product SKU Cannot be Empty').trim().isLength({min:1}).escape(),
   body('category','Product Category Must be Selected').trim().isLength({min:1}).escape(),

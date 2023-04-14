@@ -61,10 +61,6 @@ exports.productCreatePost = async (req, res, next) => {
       });
     }
 
-    //TODO: Move this to a ValidationMiddleware 
-    const foundproduct = await product.findone({name:req.body.name}).select('_id').lean().exec();
-    if(foundproduct)  return res.redirect(`/inventory/product/${foundproduct._id}`);
-    
     const {name, description, sku:sku, category, quantity, price} = req.body;
  
     const {productImage, descriptionImages } = req.files;
